@@ -1,5 +1,5 @@
 from functools import lru_cache
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class AppSettings(BaseSettings):
@@ -12,9 +12,7 @@ class AppSettings(BaseSettings):
     APP_HOST: str
     APP_PORT: int
 
-    class Config:
-        env_file = "config.env"
-        env_file_encoding = 'utf-8'
+    model_config = SettingsConfigDict(env_file='config.env', env_file_encoding='utf-8')
 
 
 @lru_cache()
