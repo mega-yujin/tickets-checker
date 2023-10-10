@@ -4,11 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class AppSettings(BaseSettings):
     SECRET_KEY: str
-    ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: float
-
-    SQLALCHEMY_DATABASE_URL: str
-
+    BOT_TOKEN: str
     APP_HOST: str
     APP_PORT: int
 
