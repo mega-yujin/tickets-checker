@@ -7,5 +7,5 @@ class Controller:
     def __init__(self, session: ClientSession):
         self._session = session
 
-    def check_tickets(self, req: CheckRequest):
-        print(f'request: {req}')
+    async def check_tickets(self, req: CheckRequest):
+        resp = await self._session.get(req.page)

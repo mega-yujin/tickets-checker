@@ -4,12 +4,15 @@ import uvicorn
 from app.api.routes import setup_routes
 from app.system.config import get_settings
 from app.system.middlewares import setup_middlewares
+from app.system.resources import ExternalDependencyContainer
 
 settings = get_settings()
 
 
 def prepare_app():
     app = FastAPI()
+    container = ExternalDependencyContainer()
+    app.container = container
     setup_routes(app)
     setup_middlewares(app)
     return app

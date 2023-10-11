@@ -1,16 +1,17 @@
 from aiohttp import ClientSession
 from dependency_injector.containers import DeclarativeContainer, WiringConfiguration
-from dependency_injector.providers import Configuration
-from dependency_injector.providers import Container
 from dependency_injector.providers import Factory, Singleton
 from fastapi import FastAPI
+from app.checker.controller import Controller
 
 
 class ExternalDependencyContainer(DeclarativeContainer):
     """Хранилище ресурсов внешних сервисов."""
 
-    config = Configuration(strict=True)
+    wiring_config = WiringConfiguration(modules=["app.checker.handlers"])
+
     client_session = Singleton(ClientSession)
+    controller = Factory(Controller, session=client_session)
 
 
 async def startup_event(app: FastAPI):  # noqa: WPS213
