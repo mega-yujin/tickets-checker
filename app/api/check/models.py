@@ -1,5 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 
 class CheckRequest(BaseModel):
-    page: str
+    page: HttpUrl

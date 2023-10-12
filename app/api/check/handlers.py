@@ -10,4 +10,4 @@ async def check_tickets(
     req: CheckRequest,
     controller: Controller = Depends(Provide[Container.controller])
 ):
-    return await controller.check_tickets(req)
+    return await controller.check_tickets_availability(req)
