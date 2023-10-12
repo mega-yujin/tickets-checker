@@ -1,20 +1,24 @@
 from fastapi import FastAPI
+from functools import partial
 import uvicorn
 
 from app.api.routes import setup_routes
 from app.system.config import get_settings
 from app.system.middlewares import setup_middlewares
-from app.system.resources import ExternalDependencyContainer
+from app.system.resources import Container, startup_event, shutdown_event
 
 settings = get_settings()
 
 
-def prepare_app():
+def prepare_app() -> FastAPI:
     app = FastAPI()
-    container = ExternalDependencyContainer()
+    container = Container()
     app.container = container
     setup_routes(app)
     setup_middlewares(app)
+
+    app.on_event('startup')(partial(startup_event, app))
+    app.on_event('shutdown')(partial(shutdown_event, app))
     return app
 
 
