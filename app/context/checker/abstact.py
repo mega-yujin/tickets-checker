@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any, Union
 
 from aiohttp import ClientSession, ClientResponse, hdrs
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic.networks import Url
 
 
@@ -14,7 +14,7 @@ class CheckResult(BaseModel):
 
 class PlayInfo(BaseModel):
     date: datetime
-    link: str
+    date_id: str
 
 
 class PlayInfoWithTickets(PlayInfo):
@@ -22,11 +22,11 @@ class PlayInfoWithTickets(PlayInfo):
 
 
 class Schedule(BaseModel):
-    plays: tuple[PlayInfo, ...]
+    plays: list[PlayInfo] = Field(default=[])
 
 
 class ScheduleWithTickets(BaseModel):
-    plays: tuple[PlayInfoWithTickets, ...]
+    plays: list[PlayInfoWithTickets] = Field(default=[])
 
 
 class TicketsChecker(ABC):
@@ -39,13 +39,14 @@ class TicketsChecker(ABC):
         return await self._session.request(method, url.unicode_string(), data=data)
 
     async def check(self, url: Url) -> CheckResult:
-        schedule_page = await self._make_request(hdrs.METH_GET, url)
+        schedule_page_response = await self._make_request(hdrs.METH_GET, url)
+        schedule_page = await schedule_page_response.text()
         schedule = self.parse_page(schedule_page)
         available_tickets = self.get_available_ticket(schedule)
         return self.analyze_result(available_tickets)
 
     @abstractmethod
-    def parse_page(self, page: ClientResponse) -> Schedule:
+    def parse_page(self, page: str) -> Schedule:
         pass
 
     @abstractmethod
