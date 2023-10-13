@@ -1,37 +1,38 @@
-from datetime import datetime
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 
 from app.context.checker.abstact import TicketsChecker, Schedule, ScheduleWithTickets, CheckResult, PlayInfo
+
+from datetime import datetime
 
 
 def _convert_date(date: str) -> datetime:
     """Convert str dates like "18 Октября, Среда, 19:00" to datetime"""
 
-    month_list = (
-        'Января',
-        'Февраля',
-        'Марта',
-        'Апреля',
-        'Мая',
-        'Июня',
-        'Июля',
-        'Августа',
-        'Сентября',
-        'Октября',
-        'Ноября',
-        'Декабря',
-    )
+    month_map = {
+        'Января': '01',
+        'Февраля': '02',
+        'Марта': '03',
+        'Апреля': '04',
+        'Мая': '05',
+        'Июня': '06',
+        'Июля': '07',
+        'Августа': '08',
+        'Сентября': '09',
+        'Октября': '10',
+        'Ноября': '11',
+        'Декабря': '12',
+    }
 
-
-
-    datetime.strptime(date, '%d %B, %A, %H:%M')
-    pass
+    splitted_date = [item.replace(',', '') for item in date.split(' ')]
+    splitted_date[1] = month_map.get(splitted_date[1])
+    splitted_date.pop(2)
+    formatted_date = ' '.join(splitted_date)
+    return datetime.strptime(formatted_date, '%d %m %H:%M').replace(year=datetime.now().year)
 
 
 def _get_date_id_from_link(link: str) -> str:
     """Get date_id from link"""
-
-    pass
+    return link.split('=')[-1]
 
 
 class PuppetTheatreChecker(TicketsChecker):
