@@ -12,6 +12,7 @@ async def _setup_http_client():
     client = ClientSession(
         connector=TCPConnector(
             verify_ssl=False,  # TODO: research needed
+            keepalive_timeout=3,
         ),
         headers=HEADERS,
     )

@@ -22,4 +22,7 @@ class Controller:
         )
 
     def process_result(self, check_result: CheckResult):
-        pass
+        print(
+            f"Check result: {check_result.tickets_available}\n",
+            f'Tickets: {check_result.show.schedule}'
+        )

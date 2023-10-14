@@ -1,32 +1,28 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any
+from typing import Any, Union
 
-from aiohttp import ClientSession, ClientResponse, hdrs
-from pydantic import BaseModel, Field
+from aiohttp import ClientSession, ClientResponse, FormData, hdrs
+from pydantic import BaseModel, Field, ConfigDict
 from pydantic.networks import Url
 
 
-class CheckResult(BaseModel):
-    tickets_available: bool
-    info: Any
-
-
-class PlayInfo(BaseModel):
+class TicketsInfo(BaseModel):
     date: datetime
-    date_id: str
+    tickets: Any = Field(default=None)  # TODO: TypeVar
+
+    model_config = ConfigDict(extra='allow')
 
 
-class PlayInfoWithTickets(PlayInfo):
-    available_tickets: Any
+class Show(BaseModel):
+    theater: str
+    show_name: str
+    schedule: list[TicketsInfo] = Field(default=[])
 
 
-class Schedule(BaseModel):
-    plays: list[PlayInfo] = Field(default=[])
-
-
-class ScheduleWithTickets(BaseModel):
-    plays: list[PlayInfoWithTickets] = Field(default=[])
+class CheckResult(BaseModel):
+    show: Show
+    tickets_available: bool = False
 
 
 class TicketsChecker(ABC):
@@ -35,24 +31,35 @@ class TicketsChecker(ABC):
     def __init__(self, session: ClientSession):
         self._session = session
 
-    async def _make_request(self, method: str, url: Url, data: dict = None) -> ClientResponse:
-        return await self._session.request(method, url.unicode_string(), data=data)
+    async def _make_request(
+            self,
+            method: str,
+            url: Union[Url, str],
+            data: dict = None,
+            params: dict[str, str] = None,
+    ) -> ClientResponse:
+        if isinstance(url, Url):
+            url = url.unicode_string()
+
+        if data:
+            pass
+        return await self._session.request(method, url, data=data, params=params)
 
     async def check(self, url: Url) -> CheckResult:
         schedule_page_response = await self._make_request(hdrs.METH_GET, url)
         schedule_page = await schedule_page_response.text()
-        schedule = self.parse_page(schedule_page)
-        available_tickets = self.get_available_ticket(schedule)
-        return self.analyze_result(available_tickets)
+        show_data = self.parse_page(schedule_page)
+        await self.get_available_ticket(show_data.schedule)
+        return self.analyze_result(show_data)
 
     @abstractmethod
-    def parse_page(self, page: str) -> Schedule:
+    def parse_page(self, page: str) -> Show:
         pass
 
     @abstractmethod
-    def get_available_ticket(self, schedule: Schedule) -> ScheduleWithTickets:
+    async def get_available_ticket(self, schedule: list[TicketsInfo]):
         pass
 
     @abstractmethod
-    def analyze_result(self, schedule: ScheduleWithTickets) -> CheckResult:
+    def analyze_result(self, show_info: Show) -> CheckResult:
         pass
