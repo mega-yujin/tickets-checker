@@ -5,8 +5,8 @@ COPY requirements.txt /app
 
 WORKDIR /app
 
+ENV PYTHONPATH=/
 RUN pip install -r requirements.txt
-
-ENTRYPOINT ["./run.sh"]
+ENTRYPOINT ["python", "main.py"]
 
 EXPOSE 5001
