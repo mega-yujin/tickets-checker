@@ -25,6 +25,11 @@ class CheckResult(BaseModel):
     tickets_available: bool = False
 
 
+class CheckResultDetail(BaseModel):
+    date: datetime
+    available_tickets: int
+
+
 class TicketsChecker(ABC):
     host: str = None
 

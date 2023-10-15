@@ -9,7 +9,21 @@ from pydantic import BaseModel
 
 from app.context.checker.abstact import TicketsChecker, TicketsInfo, CheckResult, Show
 
-SLEEP_TIME_SECONDS = 3
+SLEEP_TIME_SECONDS = 2
+
+
+class TicketsData(BaseModel):
+    id: int
+    pzone_id: int
+    x: int
+    y: int
+
+
+class AvailableTickets(BaseModel):
+    attr: bool
+    data: Union[str, list[TicketsData]]
+    hash: str
+    success: bool
 
 
 def _convert_date(date: str) -> datetime:
@@ -42,18 +56,11 @@ def _get_date_id_from_link(link: str) -> str:
     return link.split('=')[-1]
 
 
-class TicketsData(BaseModel):
-    id: int
-    pzone_id: int
-    x: int
-    y: int
-
-
-class AvailableTickets(BaseModel):
-    attr: bool
-    data: Union[str, list[TicketsData]]
-    hash: str
-    success: bool
+def _count_tickets(tickets: AvailableTickets) -> int:
+    tickets_num = 0
+    if tickets.success:
+        tickets_num = len(tickets.data)
+    return tickets_num
 
 
 class PuppetTheatreChecker(TicketsChecker):
@@ -93,8 +100,14 @@ class PuppetTheatreChecker(TicketsChecker):
 
     def analyze_result(self, show_data: Show) -> CheckResult:
         check_result = CheckResult(show=show_data)
-        check_result.tickets_available = next(
-            (True for show in show_data.schedule if show.tickets.success is True),
-            False
-        )
+        # check_result.tickets_available = next(
+        #     (True for show in show_data.schedule if show.tickets.success is True),
+        #     False
+        # )
+        check_result.tickets_available = any((
+            True for show in show_data.schedule
+            if show.tickets.success is True
+        ))
+        for show in check_result.show.schedule:
+            show.tickets = _count_tickets(show.tickets)
         return check_result
