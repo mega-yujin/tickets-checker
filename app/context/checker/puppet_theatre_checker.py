@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from app.context.checker.abstact import TicketsChecker, TicketsInfo, CheckResult, Show
 
-SLEEP_TIME_SECONDS = 2
+SLEEP_TIME_SECONDS = 1
 
 
 class TicketsData(BaseModel):
