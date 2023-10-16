@@ -2,9 +2,18 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Union
 
-from aiohttp import ClientSession, ClientResponse, FormData, hdrs
+from aiohttp import ClientSession, ClientResponse, hdrs
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.networks import Url
+
+
+class ParseException(Exception):
+    """Raises when error occurred during parse process."""
+
+    def __init__(self, error: str):
+        self.error = error
+        self.message = f'Error during parse process: {self.error}'
+        super().__init__(self.message)
 
 
 class TicketsInfo(BaseModel):
@@ -57,8 +66,14 @@ class TicketsChecker(ABC):
         await self.get_available_ticket(show_data.schedule)
         return self.analyze_result(show_data)
 
-    @abstractmethod
     def parse_page(self, page: str) -> Show:
+        try:
+            return self._parse_page(page)
+        except Exception as err:
+            raise ParseException(str(err))
+
+    @abstractmethod
+    def _parse_page(self, page: str) -> Show:
         pass
 
     @abstractmethod

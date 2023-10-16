@@ -69,7 +69,7 @@ class PuppetTheatreChecker(TicketsChecker):
     host = 'puppet-minsk.com'
     tickets_shop_url = 'https://tce.by/index.php'
 
-    def parse_page(self, page: str) -> Show:
+    def _parse_page(self, page: str) -> Show:
         soup = BeautifulSoup(page, 'html.parser')
         show_name = soup.find('p', {'class': 'performance-title'}).text
 
@@ -100,10 +100,6 @@ class PuppetTheatreChecker(TicketsChecker):
 
     def analyze_result(self, show_data: Show) -> CheckResult:
         check_result = CheckResult(show=show_data)
-        # check_result.tickets_available = next(
-        #     (True for show in show_data.schedule if show.tickets.success is True),
-        #     False
-        # )
         check_result.tickets_available = any((
             True for show in show_data.schedule
             if show.tickets.success is True

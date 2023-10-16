@@ -5,6 +5,10 @@ from pydantic import BaseModel, HttpUrl
 from app.context.checker.abstact import TicketsInfo
 
 
+class ErrorResponse(BaseModel):
+    error: str
+
+
 class CheckRequest(BaseModel):
     page: HttpUrl
     notify: Union[tuple[str], None] = None
