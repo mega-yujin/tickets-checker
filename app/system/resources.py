@@ -1,11 +1,15 @@
 from aiohttp import ClientSession, TCPConnector
+from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
 from dependency_injector.containers import DeclarativeContainer, WiringConfiguration
 from dependency_injector.providers import Singleton, Resource, Factory, List
 from fastapi import FastAPI
 
 from app.context.controller import Controller
 from app.context.checker.puppet_theatre_checker import PuppetTheatreChecker
-from app.system.config import HEADERS
+from app.system.config import HEADERS, ENVIRONMENT, get_settings
+
+settings = get_settings()
 
 
 async def _setup_http_client():
@@ -18,6 +22,10 @@ async def _setup_http_client():
     )
     yield client
     await client.close()
+
+
+async def _setup_boy():
+    bot = Bot(token=settings.BOT_TOKEN, parse_mode=ParseMode.HTML)
 
 
 class Container(DeclarativeContainer):

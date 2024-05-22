@@ -1,3 +1,4 @@
+from aiogram import Bot, Dispatcher
 from fastapi import FastAPI
 from functools import partial
 import uvicorn
@@ -8,6 +9,11 @@ from app.system.middlewares import setup_middlewares
 from app.system.resources import Container, startup_event, shutdown_event
 
 settings = get_settings()
+
+
+def prepare_bot() -> Bot:
+    bot = Bot(settings.BOT_TOKEN, parse_mode="HTML")
+    return bot
 
 
 def prepare_app() -> FastAPI:
