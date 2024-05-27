@@ -66,7 +66,7 @@ def _count_tickets(tickets: AvailableTickets) -> int:
 class PuppetTheatreChecker(TicketsChecker):
     theater = 'Белорусский государственный театр кукол'
     theatre_id = 'RkZDMTE2MUQtMTNFNy00NUIyLTg0QzYtMURDMjRBNTc1ODA0'
-    host = 'puppet-minsk.com'
+    host = 'puppet-minsk.by'
     tickets_shop_url = 'https://tce.by/index.php'
 
     def _parse_page(self, page: str) -> Show:
