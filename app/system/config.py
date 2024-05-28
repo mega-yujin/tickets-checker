@@ -22,8 +22,12 @@ class AppSettings(BaseSettings):
     BOT_TOKEN: str
     APP_HOST: str
     APP_PORT: int
+    SMTP_HOST: str
+    MAILER_PORT: int
+    MAILER_LOGIN: str
+    MAILER_PASSWORD: str
 
-    model_config = SettingsConfigDict(env_file='config.env', env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file='config.env', env_file_encoding='utf-8', extra='allow')
 
 
 @lru_cache()
