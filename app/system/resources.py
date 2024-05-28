@@ -5,7 +5,10 @@ from fastapi import FastAPI
 
 from app.context.controller import Controller
 from app.context.checker.puppet_theatre_checker import PuppetTheatreChecker
-from app.system.config import HEADERS
+from app.context.notifier.email_notifier import EmailNotifier, EmailNotifierConfig
+from app.system.config import HEADERS, get_settings
+
+settings = get_settings()
 
 
 async def _setup_http_client():
@@ -28,7 +31,18 @@ class Container(DeclarativeContainer):
         Controller,
         checkers=List(
             Singleton(PuppetTheatreChecker, session=client_session)
-        )
+        ),
+        notifiers=List(
+            Singleton(
+                EmailNotifier,
+                config=EmailNotifierConfig(
+                    host=settings.SMTP_HOST,
+                    port=settings.SMTP_PORT,
+                    login=settings.SMTP_LOGIN,
+                    password=settings.SMTP_PASSWORD,
+                )
+            )
+        ),
     )
 
 

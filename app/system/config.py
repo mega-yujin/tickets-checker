@@ -23,9 +23,9 @@ class AppSettings(BaseSettings):
     APP_HOST: str
     APP_PORT: int
     SMTP_HOST: str
-    MAILER_PORT: int
-    MAILER_LOGIN: str
-    MAILER_PASSWORD: str
+    SMTP_PORT: int
+    SMTP_LOGIN: str
+    SMTP_PASSWORD: str
 
     model_config = SettingsConfigDict(env_file='config.env', env_file_encoding='utf-8', extra='allow')
 
