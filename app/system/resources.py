@@ -1,14 +1,12 @@
 from aiohttp import ClientSession, TCPConnector
 from dependency_injector.containers import DeclarativeContainer, WiringConfiguration
-from dependency_injector.providers import Singleton, Resource, Factory, List
+from dependency_injector.providers import Singleton, Resource, Factory, List, Configuration
 from fastapi import FastAPI
 
 from app.context.controller import Controller
 from app.context.checker.puppet_theatre_checker import PuppetTheatreChecker
 from app.context.notifier.email_notifier import EmailNotifier, EmailNotifierConfig
-from app.system.config import HEADERS, get_settings
-
-settings = get_settings()
+from app.system.config import HEADERS
 
 
 async def _setup_http_client():
@@ -25,6 +23,7 @@ async def _setup_http_client():
 
 class Container(DeclarativeContainer):
     wiring_config = WiringConfiguration(packages=['app.api'])
+    config = Configuration()
 
     client_session = Resource(_setup_http_client)
     controller = Factory(
@@ -36,10 +35,10 @@ class Container(DeclarativeContainer):
             Singleton(
                 EmailNotifier,
                 config=EmailNotifierConfig(
-                    host=settings.SMTP_HOST,
-                    port=settings.SMTP_PORT,
-                    login=settings.SMTP_LOGIN,
-                    password=settings.SMTP_PASSWORD,
+                    host=config.SMTP_HOST,
+                    port=config.SMTP_PORT,
+                    login=config.SMTP_LOGIN,
+                    password=config.SMTP_PASSWORD,
                 )
             )
         ),

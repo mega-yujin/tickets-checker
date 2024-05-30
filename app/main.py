@@ -13,6 +13,7 @@ settings = get_settings()
 def prepare_app() -> FastAPI:
     app = FastAPI()
     container = Container()
+    container.config.from_dict(settings.model_dump())
     app.container = container
     setup_routes(app)
     setup_middlewares(app)
