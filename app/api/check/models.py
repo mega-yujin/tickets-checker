@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Union
 
 from pydantic import BaseModel, HttpUrl
@@ -9,13 +10,23 @@ class ErrorResponse(BaseModel):
     error: str
 
 
+class NotificationChannelEnum(str, Enum):
+    email = 'email'
+    telegram = 'telegram'
+
+
+class NotificationChannel(BaseModel):
+    channel_name: NotificationChannelEnum
+    receivers: tuple[str, ...]
+
+
 class CheckRequest(BaseModel):
     page: HttpUrl
-    notify: Union[tuple[str], None] = None
-    negative_response: bool = False
+    notify: Union[tuple[NotificationChannel, ...], None] = None
+    negative_notification: bool = False
 
 
 class CheckResponse(BaseModel):
     show_title: str
     result: bool
-    details: Union[tuple[TicketsInfo], None] = None
+    details: Union[tuple[TicketsInfo, ...], None] = None
