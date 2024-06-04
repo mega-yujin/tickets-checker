@@ -1,18 +1,16 @@
 import smtplib
 import ssl
-from typing import Union
 
-from dependency_injector.providers import ConfigurationOption
 from pydantic import BaseModel, ConfigDict
 
 from app.context.notifier.abstract import Notifier
 
 
 class EmailNotifierConfig(BaseModel):
-    host: Union[str, ConfigurationOption]
-    port: Union[int, ConfigurationOption]
-    login: Union[str, ConfigurationOption]
-    password: Union[str, ConfigurationOption]
+    host: str
+    port: int
+    login: str
+    password: str
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 

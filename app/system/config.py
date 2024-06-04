@@ -14,7 +14,7 @@ HEADERS = {
 }
 
 
-class AppSettings(BaseSettings):
+class AppConfig(BaseSettings):
     SECRET_KEY: str
     BOT_TOKEN: str
     APP_HOST: str
@@ -28,5 +28,5 @@ class AppSettings(BaseSettings):
 
 
 @lru_cache()
-def get_settings():
-    return AppSettings()
+def get_config():
+    return AppConfig()

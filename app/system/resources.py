@@ -34,7 +34,8 @@ class Container(DeclarativeContainer):
         notifiers=List(
             Singleton(
                 EmailNotifier,
-                config=EmailNotifierConfig(
+                config=Singleton(
+                    EmailNotifierConfig,
                     host=config.SMTP_HOST,
                     port=config.SMTP_PORT,
                     login=config.SMTP_LOGIN,
@@ -46,8 +47,8 @@ class Container(DeclarativeContainer):
 
 
 async def startup_event(app: FastAPI):
-    await app.container.init_resources()
+    await app.state.container.init_resources()
 
 
 async def shutdown_event(app: FastAPI):
-    await app.container.shutdown_resources()
+    await app.state.container.shutdown_resources()

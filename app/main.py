@@ -3,18 +3,17 @@ from functools import partial
 import uvicorn
 
 from app.api.routes import setup_routes
-from app.system.config import get_settings
+from app.system.config import get_config
 from app.system.middlewares import setup_middlewares
 from app.system.resources import Container, startup_event, shutdown_event
 
-settings = get_settings()
+config = get_config()
 
 
 def prepare_app() -> FastAPI:
     app = FastAPI()
-    container = Container()
-    container.config.from_dict(settings.model_dump())
-    app.container = container
+    container = Container(config=config.model_dump())
+    app.state.container = container
     setup_routes(app)
     setup_middlewares(app)
 
@@ -26,8 +25,8 @@ def prepare_app() -> FastAPI:
 def start_app():
     uvicorn.run(
         app=prepare_app(),
-        host=settings.APP_HOST,
-        port=settings.APP_PORT,
+        host=config.APP_HOST,
+        port=config.APP_PORT,
     )
 
 
