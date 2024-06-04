@@ -1,7 +1,7 @@
 import smtplib
 import ssl
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
@@ -17,11 +17,13 @@ class EmailNotifierConfig(BaseModel):
     login: str
     password: str
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
 
 class EmailNotifier(Notifier[EmailNotifierConfig]):
     notification_channel_name = NotificationChannelEnum.email
+    POSITIVE_SUBJECT = 'Available tickets for the show "{show_name}"'
+    NEGATIVE_SUBJECT = 'No available tickets for the show "{show_name}"'
+    POSITIVE_TEXT = 'Congratulations! You can buy tickets for the show "{show_name}"'
+    NEGATIVE_TEXT = "Unfortunately, you can't visit this show yet"
 
     def __init__(self, config):
         super().__init__(config)
@@ -40,12 +42,22 @@ class EmailNotifier(Notifier[EmailNotifierConfig]):
     def _generate_message(self, check_result: CheckResult) -> str:
         msg = MIMEMultipart('alternative')
 
-        msg['From'] = ...
-        msg['Date'] = formatdate()
-        msg['Subject'] = ...
+        # msg['From'] = 'MegaTicketsChecker'
+        # msg['Date'] = formatdate()
 
-        text = ...
+        if check_result.tickets_available:
+            msg['Subject'] = self.POSITIVE_SUBJECT.format(
+                show_name=check_result.show.show_name,
+            )
+            text = self.POSITIVE_TEXT.format(
+                show_name=check_result.show.show_name,
+            )
+        else:
+            msg['Subject'] = self.NEGATIVE_SUBJECT.format(
+                show_name=check_result.show.show_name,
+            )
+            text = self.NEGATIVE_TEXT
 
-        msg.attach(MIMEText(..., 'plain'))
+        msg.attach(MIMEText(text, 'plain'))
 
         return msg.as_string()
