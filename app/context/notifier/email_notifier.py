@@ -6,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
 
+from app.api.check.models import NotificationChannelEnum
 from app.context.checker.abstact import CheckResult
 from app.context.notifier.abstract import Notifier
 
@@ -20,6 +21,8 @@ class EmailNotifierConfig(BaseModel):
 
 
 class EmailNotifier(Notifier[EmailNotifierConfig]):
+    notification_channel_name = NotificationChannelEnum.email
+
     def __init__(self, config):
         super().__init__(config)
         self._context = ssl.create_default_context()

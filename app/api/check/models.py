@@ -16,14 +16,14 @@ class NotificationChannelEnum(str, Enum):
 
 
 class NotificationChannel(BaseModel):
-    channel: NotificationChannelEnum
+    channel_name: NotificationChannelEnum
     receivers: tuple[str, ...]
 
 
 class CheckRequest(BaseModel):
     page: HttpUrl
     notify: Union[tuple[NotificationChannel, ...], None] = None
-    negative_response: bool = False
+    negative_notification: bool = False
 
 
 class CheckResponse(BaseModel):
