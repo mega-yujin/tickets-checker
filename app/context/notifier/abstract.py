@@ -3,6 +3,8 @@ from typing import TypeVar, Generic
 
 from pydantic import BaseModel
 
+from app.context.checker.abstact import CheckResult
+
 C = TypeVar("C", bound=BaseModel)
 
 
@@ -11,5 +13,5 @@ class Notifier(Generic[C], ABC):
         self._config = config
 
     @abstractmethod
-    def send_notifications(self, receivers: tuple[str, ...]):
+    def send_notifications(self, receivers: tuple[str, ...], check_result: CheckResult):
         """Implements a sending notifications method"""
