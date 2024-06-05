@@ -4,10 +4,9 @@ import ssl
 from pydantic import BaseModel
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.utils import formatdate
 
 from app.api.check.models import NotificationChannelEnum
-from app.context.checker.abstact import CheckResult
+from app.context.checker.abstact import CheckResult, TicketsInfo
 from app.context.notifier.abstract import Notifier
 
 
@@ -22,7 +21,13 @@ class EmailNotifier(Notifier[EmailNotifierConfig]):
     notification_channel_name = NotificationChannelEnum.email
     POSITIVE_SUBJECT = 'Available tickets for the show "{show_name}"'
     NEGATIVE_SUBJECT = 'No available tickets for the show "{show_name}"'
-    POSITIVE_TEXT = 'Congratulations! You can buy tickets for the show "{show_name}"'
+    POSITIVE_TEXT = """
+Congratulations! You can buy tickets for the show "{show_name}\"
+
+Available dates:
+{available_dates}
+"""
+    AVAILABLE_DATES = "* {date} - {tickets_num}\n"
     NEGATIVE_TEXT = "Unfortunately, you can't visit this show yet"
 
     def __init__(self, config):
@@ -42,15 +47,13 @@ class EmailNotifier(Notifier[EmailNotifierConfig]):
     def _generate_message(self, check_result: CheckResult) -> str:
         msg = MIMEMultipart('alternative')
 
-        # msg['From'] = 'MegaTicketsChecker'
-        # msg['Date'] = formatdate()
-
         if check_result.tickets_available:
             msg['Subject'] = self.POSITIVE_SUBJECT.format(
                 show_name=check_result.show.show_name,
             )
             text = self.POSITIVE_TEXT.format(
                 show_name=check_result.show.show_name,
+                available_dates=self._generate_list_of_available_tickets(check_result.show.schedule),
             )
         else:
             msg['Subject'] = self.NEGATIVE_SUBJECT.format(
@@ -61,3 +64,12 @@ class EmailNotifier(Notifier[EmailNotifierConfig]):
         msg.attach(MIMEText(text, 'plain'))
 
         return msg.as_string()
+
+    def _generate_list_of_available_tickets(self, schedule: list[TicketsInfo]) -> str:
+        result_str = ''
+        for show_date in schedule:
+            result_str += self.AVAILABLE_DATES.format(
+                date=str(show_date.date),
+                tickets_num=show_date.tickets,
+            )
+        return result_str
